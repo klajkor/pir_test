@@ -19,6 +19,7 @@
 #include "freertos/task.h"
 #include "freertos/queue.h"
 #include "driver/gpio.h"
+#include "esp_log.h"
 
 #include "app_pir.h"
 

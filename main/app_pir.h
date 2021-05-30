@@ -5,9 +5,7 @@
  *      Author: Robert Klajko
  */
 
-#ifndef INC_APP_PIR_H_
-#define INC_APP_PIR_H_
-
+#pragma once
 
 #include <stdio.h>
 #include <string.h>
@@ -16,8 +14,9 @@
 #include "freertos/task.h"
 #include "freertos/queue.h"
 #include "driver/gpio.h"
+#include "esp_log.h"
 
-#define GPIO_OUTPUT_IO_0    26
+#define GPIO_OUTPUT_IO_0    25
 #define GPIO_OUTPUT_PIN_SEL  ((1ULL<<GPIO_OUTPUT_IO_0))
 #define GPIO_PIR_INPUT     34
 #define GPIO_INPUT_PIN_SEL  ((1ULL<<GPIO_PIR_INPUT))
@@ -31,5 +30,8 @@ void pir_gpio_init(void);
 void pir_gpio_intr_config(void);
 void pir_task_init(void);
 
-
-#endif /* INC_APP_PIR_H_ */
+typedef struct gpio_struct_t
+{
+    uint32_t gpio_pin;
+    int32_t gpio_level;
+} gpio_struct_t;

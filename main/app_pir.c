@@ -11,19 +11,23 @@ static xQueueHandle gpio_evt_queue = NULL;
 
 static void IRAM_ATTR pir_gpio_isr_handler(void* arg)
 {
-    uint32_t gpio_num = (uint32_t) arg;
-    xQueueSendFromISR(gpio_evt_queue, &gpio_num, NULL);
+    gpio_struct_t gpio_read;
+    gpio_read.gpio_pin = (uint32_t) arg;
+    gpio_read.gpio_level = gpio_get_level(gpio_read.gpio_pin);
+    xQueueSendFromISR(gpio_evt_queue, &gpio_read, NULL);
 }
 
 static void pir_gpio_task(void* arg)
 {
-    uint32_t pir_input_pin;
-    int pir_input_level;
+    //uint32_t pir_input_pin;
+    //int pir_input_level;
+    gpio_struct_t gpio_read_q;
     for(;;) {
-        if(xQueueReceive(gpio_evt_queue, &pir_input_pin, portMAX_DELAY)) {
-            pir_input_level=gpio_get_level(pir_input_pin);
-            printf("GPIO[%d] intr, val: %d\n", pir_input_pin, pir_input_level);
-            gpio_set_level(GPIO_OUTPUT_IO_0, pir_input_level);
+        if(xQueueReceive(gpio_evt_queue, &gpio_read_q, portMAX_DELAY)) {
+            //pir_input_level=gpio_get_level(pir_input_pin);
+            //printf("GPIO[%d] intr, val: %d\n", gpio_read_q.gpio_pin, gpio_read_q.gpio_level);
+            ESP_LOGI("pir_gpio_task","GPIO[%d] intr, val: %d", gpio_read_q.gpio_pin, gpio_read_q.gpio_level);
+            gpio_set_level(GPIO_OUTPUT_IO_0, gpio_read_q.gpio_level);
         }
     }
 }
@@ -45,7 +49,7 @@ void pir_gpio_init(void)
     gpio_config(&io_conf);
 
     //interrupt of rising edge
-    io_conf.intr_type = GPIO_INTR_POSEDGE;
+    io_conf.intr_type = GPIO_INTR_ANYEDGE;
     //bit mask of the pins, use GPIO4/5 here
     io_conf.pin_bit_mask = GPIO_INPUT_PIN_SEL;
     //set as input mode
@@ -68,7 +72,7 @@ void pir_gpio_intr_config(void)
 void pir_task_init(void)
 {
     //create a queue to handle gpio event from isr
-    gpio_evt_queue = xQueueCreate(10, sizeof(uint32_t));
+    gpio_evt_queue = xQueueCreate(10, sizeof(gpio_struct_t));
     //start gpio task
     xTaskCreate(pir_gpio_task, "pir_gpio_task", 2048, NULL, 10, NULL);
 }
