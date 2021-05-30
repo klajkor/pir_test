@@ -19,13 +19,8 @@ static void IRAM_ATTR pir_gpio_isr_handler(void* arg)
 
 static void pir_gpio_task(void* arg)
 {
-    //uint32_t pir_input_pin;
-    //int pir_input_level;
-    gpio_struct_t gpio_read_q;
     for(;;) {
         if(xQueueReceive(gpio_evt_queue, &gpio_read_q, portMAX_DELAY)) {
-            //pir_input_level=gpio_get_level(pir_input_pin);
-            //printf("GPIO[%d] intr, val: %d\n", gpio_read_q.gpio_pin, gpio_read_q.gpio_level);
             ESP_LOGI("pir_gpio_task","GPIO[%d] intr, val: %d", gpio_read_q.gpio_pin, gpio_read_q.gpio_level);
             gpio_set_level(GPIO_OUTPUT_IO_0, gpio_read_q.gpio_level);
         }
@@ -48,7 +43,7 @@ void pir_gpio_init(void)
     //configure GPIO with the given settings
     gpio_config(&io_conf);
 
-    //interrupt of rising edge
+    //interrupt of any edge
     io_conf.intr_type = GPIO_INTR_ANYEDGE;
     //bit mask of the pins, use GPIO4/5 here
     io_conf.pin_bit_mask = GPIO_INPUT_PIN_SEL;
