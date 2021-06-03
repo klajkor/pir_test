@@ -22,17 +22,27 @@
 #include "esp_log.h"
 
 #include "app_pir.h"
+#include "pir_sensor.h"
+
+pirDriverPinParameters_s test_pirPin = {
+    .pirDriverPin = 34,
+    .pirDriverPinPullUp_Enabled = GPIO_PULLUP_DISABLE,
+    .pirDriverPinPullDown_Enabled = GPIO_PULLDOWN_DISABLE,
+    .pirDriverPinActiveState = pirDriverPinActiveState_LOW,
+    .pirDriverPinPIRStatus = pirDriverPinPIRStatus_Disabled};
 
 void app_main(void)
 {
+
     pir_gpio_init();
     pir_task_init();
     pir_gpio_intr_config();
-        
+
     // Everything is done in the PIR FreeRTOS task, pir_gpio_task().
     // See more in app_pir.c
 
-    while(1) {
+    while (1)
+    {
         vTaskDelay(1000 / portTICK_RATE_MS);
     }
 }

@@ -19,6 +19,7 @@ static void IRAM_ATTR pir_gpio_isr_handler(void* arg)
 
 static void pir_gpio_task(void* arg)
 {
+    gpio_struct_t gpio_read_q;
     for(;;) {
         if(xQueueReceive(gpio_evt_queue, &gpio_read_q, portMAX_DELAY)) {
             ESP_LOGI("pir_gpio_task","GPIO[%d] intr, val: %d", gpio_read_q.gpio_pin, gpio_read_q.gpio_level);
